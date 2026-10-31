@@ -2,10 +2,11 @@
 
 
 read-proc() {
-	while read -r key foo bar baz line; do
-		echo "$key"
-		echo "$foo"
-
+	local key user nice system idle lowait 
+	local irq softirq steal guest guest_nice
+	while read -r key user nice system idle lowait \
+		irq softirq steal guest guest_nice; do
+		echo "$key user =$user"
 
 	done < /proc/stat
 }
