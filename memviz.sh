@@ -2,8 +2,9 @@
 
 
 read-proc() {
-	while read -r line; do
-		echo "$line"
+	while read -r key foo bar baz line; do
+		echo "$key"
+		echo "$foo"
 
 
 	done < /proc/stat
