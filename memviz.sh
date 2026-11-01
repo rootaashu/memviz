@@ -34,18 +34,44 @@ read-proc() {
 		done < /proc/stat
 }
 
-visualize-data() {
-	echo visualizing....
+print-bar(){
+	local key =$1
+
+	local busy1 idle1 buay2 idle2
+	read -r busy1 idle1 <<< "${previous[$key]}"
+	read -r busy2 idle2 <<< "${current[$key]}"
+	
+	local busy=$((busy2 - busy1))
+	local idle=$((idle2 - idle1))
+	local total=$((busy + idle))
+	
+	if ((total > 0 )); then
+		local prec=$((100 * busy / total))
+		echo "$key is $prec% busy"
+	else
+		prec=0
+	fi
+
 }
+
+visualize-data() {
+	local key 
+	for key in "${!current[@]}"; do 
+		print-bar "$key"
+	done
+	echo
+	
+}
+
 main(){
-read-proc
-sleep 1 
-echo "waiting for data..."
-while true; do
-copy-data
-read-proc
-visualize-data
-sleep 1
-done 
+	read-proc
+	sleep 1 
+	echo "waiting for data..."
+	while true; do
+	copy-data
+	read-proc
+	visualize-data
+	sleep 1
+	done 
 }
 main "$@"
