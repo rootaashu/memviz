@@ -34,15 +34,18 @@ read-proc() {
 		done < /proc/stat
 }
 
+visualize-data() {
+	echo visualizing....
+}
+main(){
 read-proc
 sleep 1 
+echo "waiting for data..."
+while true; do
 copy-data
 read-proc
-
-echo "previous cpu statistics "
-declare -p previous 
-
-echo
-echo "current cpu statistics"
-declare -p current 
-
+visualize-data
+sleep 1
+done 
+}
+main "$@"
