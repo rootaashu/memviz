@@ -21,7 +21,9 @@ read-proc() {
 	while read -r key user nice system idle iowait \
 		irq softirq steal guest guest_nice; do
 			if [[ $key != cpu* ]]; then
-				continue 
+				continue
+			elif [[ $key == 'cpu' ]];then 
+			continue 	
 			fi 
 
 			busy=$((user + nice + system + irq + softirq + steal + guest))
