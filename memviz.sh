@@ -14,18 +14,18 @@ copy-data() {
 }
 
 read-proc() {
-	local key user nice system idle lowait 
+	local key user nice system idle iowait 
 	local irq softirq steal guest guest_nice
 
 	local busy value 
-	while read -r key user nice system idle lowait \
+	while read -r key user nice system idle iowait \
 		irq softirq steal guest guest_nice; do
 			if [[ $key != cpu* ]]; then
 				continue 
 			fi 
 
-			busy=$((user + nice + system + irq + softirq + steal + guest + nice))
-			idle=$((idle +lowait))
+			busy=$((user + nice + system + irq + softirq + steal + guest))
+			idle=$((idle +iowait))
 			
 			value="$busy $idle"
 
@@ -35,9 +35,9 @@ read-proc() {
 }
 
 print-bar(){
-	local key =$1
+	local key=$1
 
-	local busy1 idle1 buay2 idle2
+	local busy1 idle1 busy2 idle2
 	read -r busy1 idle1 <<< "${previous[$key]}"
 	read -r busy2 idle2 <<< "${current[$key]}"
 	
@@ -45,12 +45,12 @@ print-bar(){
 	local idle=$((idle2 - idle1))
 	local total=$((busy + idle))
 	
-	if ((total > 0 )); then
-		local prec=$((100 * busy / total))
+		local usage=$((1000 * busy / total))
+		local int==$((usage / 10))
+		local frac=$((usage % 10))
+		local prec=$int.$frac
 		echo "$key is $prec% busy"
-	else
-		prec=0
-	fi
+
 
 }
 
