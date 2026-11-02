@@ -52,7 +52,24 @@ print-bar(){
 		local frac=$((usage % 10))
 		local prec=$int.$frac
 		echo "$key is $prec% busy"
+#visuals
+	local bar_char='|'
+	local empty_char=' '
+	local length=50 
+	
+	local num_bars=$((usage * length / 1000))
 
+	local i 
+	local s='['
+	for ((i=0; i<num_bars; i++)); do 
+		s+=$bar_char 
+	done 
+	for ((i= num_bars; i<length; i++)); do 
+		s+=$empty_char 
+	done 
+	s+=']'
+	
+	echo -ne "$s $current/$len ($prec%)\r"
 
 }
 
