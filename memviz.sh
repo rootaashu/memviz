@@ -70,7 +70,7 @@ print-bar(){
 	done 
 	s+=']'
 	
-	echo  "$s $key $prec%"
+	echo  "$s cpu$key $prec%"
 
 }
 
