@@ -83,15 +83,22 @@ visualize-data() {
 	
 }
 
+cleanup(){
+	printf '\e[?1049h'
+	printf '\e[?25l'	
+}
 main(){
 	read-proc
 	 
 	echo "waiting for data..."
 	sleep 1 
 	
-	printf '\e{?1049h'
-	printf '\e{?25l'
-	printf '\e{H'
+	trap cleanup EXIT
+
+
+	printf '\e[?1049h'
+	printf '\e[?25l'
+	printf '\e[H'
 	while true; do
 		copy-data
 		read-proc
