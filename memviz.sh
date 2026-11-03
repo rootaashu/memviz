@@ -1,7 +1,7 @@
 #!/usr/bin/env bash 
 
-declare -A current=()
-declare -A previous=()
+declare  current=()
+declare  previous=()
 
 copy-data() {
 	previous=()
@@ -17,7 +17,7 @@ read-proc() {
 	local key user nice system idle iowait 
 	local irq softirq steal guest guest_nice
 
-	local busy value 
+	local busy value num  
 	while read -r key user nice system idle iowait \
 		irq softirq steal guest guest_nice; do
 			if [[ $key != cpu* ]]; then
@@ -25,13 +25,14 @@ read-proc() {
 			elif [[ $key == 'cpu' ]];then 
 			continue 	
 			fi 
+			num=${key#cpu}
 
 			busy=$((user + nice + system + irq + softirq + steal + guest))
 			idle=$((idle +iowait))
 			
 			value="$busy $idle"
 
-			current[$key]=$value
+			current[$num]=$value
 
 		done < /proc/stat
 }
