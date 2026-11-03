@@ -85,13 +85,18 @@ visualize-data() {
 
 main(){
 	read-proc
-	sleep 1 
+	 
 	echo "waiting for data..."
+	sleep 1 
+	
+	printf '\e{?1049h'
+	printf '\e{?25l'
+	printf '\e{H'
 	while true; do
-	copy-data
-	read-proc
-	visualize-data
-	sleep 1
+		copy-data
+		read-proc
+		visualize-data
+		sleep 1
 	done 
 }
 main "$@"
