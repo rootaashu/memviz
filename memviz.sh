@@ -87,6 +87,17 @@ cleanup(){
 	printf '\e[?1049h'
 	printf '\e[?25l'	
 }
+
+update-window-size(){
+	COLUMNS=${COLUMMS:-80}
+	
+	local cpus=( "${!CURRENT[@]}" )
+	local highest_cpu=${cpus[-1]}
+
+	local i=$((2+ 4 + ${#highest_cpu} + 8))
+		BAR_LENGTH=$((COLUMNS - i))
+
+}
 main(){
 	shopt -s checkwinsize 
 
