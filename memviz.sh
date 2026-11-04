@@ -88,20 +88,28 @@ cleanup(){
 	printf '\e[?25l'	
 }
 main(){
-	read-proc
-	 
+	shopt -s checkwinsize 
+
+	read-all-cpus
+	read-proc 
 	echo "waiting for data..."
 	sleep 1 
 	
 	trap cleanup EXIT
-
+	trap update-window-size WINCH 
 
 	printf '\e[?1049h'
 	printf '\e[?25l'
 	printf '\e[H'
+
+	update-window-size 
+
+	local s
 	while true; do
 		copy-data
 		read-proc
+
+		printf'\e[H'
 		visualize-data
 		sleep 1
 	done 
