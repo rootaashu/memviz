@@ -38,42 +38,56 @@ read-proc() {
 }
 
 print-bar(){
+
 	local key=$1
 
 	local busy1 idle1 busy2 idle2
-	read -r busy1 idle1 <<< "${previous[$key]}"
-	read -r busy2 idle2 <<< "${current[$key]}"
-	
-	local busy=$((busy2 - busy1))
-	local idle=$((idle2 - idle1))
-	local total=$((busy + idle))
-	
-		local usage=$((1000 * busy / total))
-		local int==$((usage / 10))
-		local frac=$((usage % 10))
-		local prec=$int.$frac
-	
-#visuals
-	local bar_char='|'
-	local empty_char=' '
-	local length=50 
-	
-	local num_bars=$((usage * length / 1000))
+	read -r busy1 idle1 <<< "${PREVIOUS[$key]}"
+	read -r busy2 idle2 <<< "${CURRENT[$key]}"
 
-	local i 
+	# check for offline cpu
+	local usage online
+	if [[ -z $busy1 || -z $busy2 ]]; then
+
+		usage=0
+		online=
+	else
+
+		local busy=$((busy2 - busy1))
+		local idle=$((idle2 - idle1))
+		local total=$((busy + idle))
+
+		usage=$((1000 * busy / total))
+		online=1
+	fi
+
+	local int=$((usage / 10))
+	local frac=$((usage % 10))
+	local perc=$int.$frac
+
+	local num_bars=$((usage * BAR_LENGTH / 1000))
+
+	local i
 	local s='['
-	for ((i=0; i<num_bars; i++)); do 
-		s+=$bar_char 
-	done 
-	for ((i= num_bars; i<length; i++)); do 
-		s+=$empty_char 
-	done 
-	s+=']'
+	for ((i = 0; i < num_bars; i++)); do
+		s+=$COLOR1$BAR_CHAR$RST
+	done
+	for ((i = num_bars; i < BAR_LENGTH; i++)); do
+		s+=$EMPTY_CHAR
+	done
+	s+=']'	
 	
-	echo  "$s cpu$key $prec%"
+	local state
+	if [[ -n $online ]]; then
+		printf -v perc '%-7s' "$perc%"
+		state=$COLOR3$perc$RST
+	else
+		state=${DIM}offline$RST
+	fi
 
-}
-
+	echo "$s ${COLOR2}cpu$key$RST $state"
+	
+}	
 visualize-data() {
 	echo "${DIM}CPU Usage on $COLOR3$HOSTNAME$RST"
 
