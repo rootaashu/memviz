@@ -75,11 +75,16 @@ print-bar(){
 }
 
 visualize-data() {
+	echo "${DIM}CPU Usage on $COLOR3$HOSTNAME$RST"
+
 	local key 
 	for key in "${!current[@]}"; do 
 		print-bar "$key"
 	done
-	echo
+	
+	local now 
+	printf -v now '%(%Y-%m-%dT%H:%M:%S%z)T'
+	echo "$DIM$now$RST"
 	
 }
 
