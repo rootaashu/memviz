@@ -98,6 +98,12 @@ update-window-size(){
 		BAR_LENGTH=$((COLUMNS - i))
 
 }
+
+read-all-cpus(){
+	ALL_CPUS=(/sys/devices/system/cpu/cpu[0-16]*)
+	ALL_CPUS=("${ALL_CPUS[@]##*/cpu}")
+
+}	
 main(){
 	shopt -s checkwinsize 
 
