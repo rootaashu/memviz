@@ -3,6 +3,8 @@
 declare  current=()
 declare  previous=()
 
+
+
 copy-data() {
 	previous=()
 
@@ -103,8 +105,8 @@ visualize-data() {
 }
 
 cleanup(){
-	printf '\e[?1049h'
-	printf '\e[?25l'	
+	printf '\e[?1049l'
+	printf '\e[?25h'	
 }
 
 update-window-size(){
