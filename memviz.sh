@@ -191,7 +191,7 @@ main(){
 		copy-data
 		read-proc
 		
-		pritnf '\e[H\[2J'
+		printf '\e[H\[2J'
 
 		visualize-data
 		
