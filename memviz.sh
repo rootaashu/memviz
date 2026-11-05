@@ -1,20 +1,47 @@
 #!/usr/bin/env bash 
 
-declare  current=()
-declare  previous=()
+declare -a CURRENT=()
+declare -a  PREVIOUS=()
+declare -a ALL_CPUS=()
 
+BAR_CHAR='|'
+EMPTY_CHAR=' '
+BAR_LENGTH=30
 
+if [[ -z ${NO_COLOR:-} ]]; then 
+	COLOR1=$'\e[31m' 
+	COLOR2=$'\e[35m'
+	COLOR3=$'\e[36m'
+	DIM=$'\e[2m'
+	RST=$'\e[0m'
+else 
+	COLOR1=''
+	COLOR2=''
+	COLOR3=''
+	DIM=''
+	RST=''
+
+fi 
 
 copy-data() {
-	previous=()
+	PREVIOUS=()
 
-	local key value 
+	local key  
 	for key in "${!current[@]}"; do
-		value=${current[$key]}
-		previous[key]=$value 
+		PREVIOUS[key]=${CURRENT[$key]} 
 	done
 }
+read-all-cpus(){
+	ALL_CPUS=()
 
+	local path 
+
+	for path in /sys/devices/system/cpu/cpu[0-9]*; do
+		[[ -d $path ]] || continue 
+
+		ALL_CPUS+=("${PATH##*/cpu}")
+	done 
+}
 read-proc() {
 	local key user nice system idle iowait 
 	local irq softirq steal guest guest_nice
@@ -146,9 +173,11 @@ main(){
 	while true; do
 		copy-data
 		read-proc
-
+		
+		s=${ visualize-data; }
+		printf'\e[2J'
 		printf'\e[H'
-		visualize-data
+		echo -n "$s"	
 		sleep 1
 	done 
 }
