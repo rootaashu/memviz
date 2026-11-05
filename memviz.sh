@@ -77,10 +77,9 @@ print-bar(){
 	local key=$1
 
 	local busy1 idle1 busy2 idle2
-	read -r busy1 idle1 <<< "${PREVIOUS[$key]}"
-	read -r busy2 idle2 <<< "${CURRENT[$key]}"
+	read -r busy1 idle1 <<< "${PREVIOUS[$key]:-}"
+	read -r busy2 idle2 <<< "${CURRENT[$key]:-}"
 
-	# check for offline cpu
 	local usage online
 	if [[ -z $busy1 || -z $busy2 ]]; then
 
@@ -91,9 +90,13 @@ print-bar(){
 		local busy=$((busy2 - busy1))
 		local idle=$((idle2 - idle1))
 		local total=$((busy + idle))
-
-		usage=$((1000 * busy / total))
-		online=1
+		
+		if (( total <= 0 )); then 
+			usage=0
+		else 
+			usage=$((1000 * busy / total))
+		fi 
+	online=1
 	fi
 
 	local int=$((usage / 10))
@@ -105,24 +108,30 @@ print-bar(){
 	local i
 	local s='['
 	for ((i = 0; i < num_bars; i++)); do
-		s+=$COLOR1$BAR_CHAR$RST
+		s+="${COLOR1}${BAR_CHAR}${RST}"
 	done
+
 	for ((i = num_bars; i < BAR_LENGTH; i++)); do
-		s+=$EMPTY_CHAR
+		s+="$EMPTY_CHAR"
 	done
+
 	s+=']'	
 	
 	local state
+
 	if [[ -n $online ]]; then
 		printf -v perc '%-7s' "$perc%"
-		state=$COLOR3$perc$RST
+		state="${COLOR3}${perc}${RST}"
 	else
-		state=${DIM}offline$RST
+		state="${DIM}offline${RST}"
 	fi
 
-	echo "$s ${COLOR2}cpu$key$RST $state"
-	
+
+	printf '%s %s%s%s %s\n' \
+		"$s" "$COLOR2" "cpu$key" "$RST" "$state"
 }	
+
+
 visualize-data() {
 	echo "${DIM}CPU Usage on $COLOR3$HOSTNAME$RST"
 
