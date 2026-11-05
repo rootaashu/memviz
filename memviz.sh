@@ -133,17 +133,18 @@ print-bar(){
 
 
 visualize-data() {
-	echo "${DIM}CPU Usage on $COLOR3$HOSTNAME$RST"
+	printf '%bCPU Usage on %b%s%b\n' \
+		"$DIM" "$COLOR3" "$HOSTNAME" "$RST"
 
 	local key 
-	for key in "${!current[@]}"; do 
+	for key in "${!CURRENT[@]}"; do 
 		print-bar "$key"
 	done
 	
 	local now 
 	printf -v now '%(%Y-%m-%dT%H:%M:%S%z)T'
-	echo "$DIM$now$RST"
 	
+	printf '%b%s%b\n' "$DIM" "$now" "$RST"
 }
 
 cleanup(){
@@ -155,10 +156,12 @@ update-window-size(){
 	COLUMNS=${COLUMMS:-80}
 	
 	local cpus=( "${!CURRENT[@]}" )
-	local highest_cpu=${cpus[-1]}
+	local highest_cpu=${cpus[-1]:-0}
 
-	local i=$((2+ 4 + ${#highest_cpu} + 8))
-		BAR_LENGTH=$((COLUMNS - i))
+	local i=$((2 + 4 + ${#highest_cpu} + 8))
+	BAR_LENGTH=$((COLUMNS - i))
+
+	(( BAR_LENGTH < 1)) && BAR_LENGTH=1
 
 }
 
@@ -184,15 +187,14 @@ main(){
 
 	update-window-size 
 
-	local s
 	while true; do
 		copy-data
 		read-proc
 		
-		s=${ visualize-data; }
-		printf'\e[2J'
-		printf'\e[H'
-		echo -n "$s"	
+		pritnf '\e[H\[2J'
+
+		visualize-data
+		
 		sleep 1
 	done 
 }
