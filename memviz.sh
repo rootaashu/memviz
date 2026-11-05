@@ -43,17 +43,23 @@ read-all-cpus(){
 	done 
 }
 read-proc() {
+	CURRENT=()
+	
 	local key user nice system idle iowait 
 	local irq softirq steal guest guest_nice
 
-	local busy value num  
+	local busy value num
+
+	for key in "${All_CPUS[@]}"; do 
+		CURRENT[$key]=''
+	done 
+
 	while read -r key user nice system idle iowait \
 		irq softirq steal guest guest_nice; do
-			if [[ $key != cpu* ]]; then
-				continue
-			elif [[ $key == 'cpu' ]];then 
-			continue 	
-			fi 
+			[[ $key == cpu* ]] || continue 
+
+			[[ $key == cpu ]] && continue 
+
 			num=${key#cpu}
 
 			busy=$((user + nice + system + irq + softirq + steal + guest))
@@ -61,7 +67,7 @@ read-proc() {
 			
 			value="$busy $idle"
 
-			current[$num]=$value
+			CURRENT[$num]=$value
 
 		done < /proc/stat
 }
