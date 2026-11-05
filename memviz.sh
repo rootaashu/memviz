@@ -27,10 +27,13 @@ copy-data() {
 	PREVIOUS=()
 
 	local key  
-	for key in "${!current[@]}"; do
-		PREVIOUS[key]=${CURRENT[$key]} 
+	for key in "${!CURRENT[@]}"; do
+		PREVIOUS[$key]=${CURRENT[$key]} 
 	done
 }
+
+declare -p PREVIOUS
+
 read-all-cpus(){
 	ALL_CPUS=()
 
@@ -39,7 +42,7 @@ read-all-cpus(){
 	for path in /sys/devices/system/cpu/cpu[0-9]*; do
 		[[ -d $path ]] || continue 
 
-		ALL_CPUS+=("${PATH##*/cpu}")
+		ALL_CPUS+=("${path##*/cpu}")
 	done 
 }
 read-proc() {
@@ -62,7 +65,7 @@ read-proc() {
 
 			num=${key#cpu}
 
-			busy=$((user + nice + system + irq + softirq + steal + guest))
+			busy=$((user + nice + system + irq + softirq + steal))
 			idle=$((idle +iowait))
 			
 			value="$busy $idle"
@@ -71,6 +74,7 @@ read-proc() {
 
 		done < /proc/stat
 }
+declare -p CURRENT 
 
 print-bar(){
 
@@ -137,7 +141,7 @@ visualize-data() {
 		"$DIM" "$COLOR3" "$HOSTNAME" "$RST"
 
 	local key 
-	for key in "${!CURRENT[@]}"; do 
+	for key in "${!ALL_CPUS[@]}"; do 
 		print-bar "$key"
 	done
 	
@@ -186,7 +190,7 @@ main(){
 		copy-data
 		read-proc
 		
-		printf '\e[H\[2J'
+		printf '\e[H\e[2J'
 
 		visualize-data
 		
